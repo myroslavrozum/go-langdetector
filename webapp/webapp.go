@@ -1,4 +1,4 @@
-package main
+package webapp
 
 import (
 	"bytes"
@@ -45,7 +45,7 @@ func serveIndexPage(c *gin.Context) {
 	)
 }
 
-func webapp() {
+func Run() {
 	router := gin.Default()
 	router.Static("/assets", "./webapp/assets")
 	router.GET("/", serveIndexPage)
