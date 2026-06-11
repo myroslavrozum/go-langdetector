@@ -31,7 +31,7 @@ func serveIndexPage(c *gin.Context) {
 		}
 	}
 
-	tf := template.Must(template.ParseGlob("webapp/templates/*"))
+	tf := template.Must(template.ParseGlob("./webapp/templates/*"))
 	log.Println("Defined templates: ", tf.DefinedTemplates())
 
 	var stringBuffer bytes.Buffer
