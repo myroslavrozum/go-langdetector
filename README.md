@@ -1,4 +1,3 @@
-# -*- coding: utf-8
 # Go Langdetector
 Brushing up my Go skills and rewriting my old:
 https://github.com/myroslavrozum/langdetector

@@ -31,7 +31,7 @@ func serveIndexPage(c *gin.Context) {
 		}
 	}
 
-	tf := template.Must(template.ParseGlob("templates/*"))
+	tf := template.Must(template.ParseGlob("webapp/templates/*"))
 	log.Println("Defined templates: ", tf.DefinedTemplates())
 
 	var stringBuffer bytes.Buffer
@@ -47,7 +47,7 @@ func serveIndexPage(c *gin.Context) {
 
 func webapp() {
 	router := gin.Default()
-	router.Static("/assets", "./assets")
+	router.Static("/assets", "./webapp/assets")
 	router.GET("/", serveIndexPage)
 
 	router.GET("/ping", func(c *gin.Context) {
