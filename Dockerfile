@@ -23,7 +23,7 @@ FROM gruebel/upx:latest AS packer
 COPY --from=builder /app/go-langdetector go-langdetector
 RUN upx --best --lzma  go-langdetector
 
-#Stage 2: Create the minimal production runtime image
+#Stage 3: Create the minimal production runtime image
 FROM scratch
 
 WORKDIR /app
@@ -33,7 +33,7 @@ COPY --from=builder /app/webapp/assets webapp/assets
 COPY --from=builder /app/webapp/templates webapp/templates
 
 # Copy the compiled binary from the builder stage
-COPY --from=builder /app/go-langdetector go-langdetector
+COPY --from=packer go-langdetector go-langdetector
 
 
 # # Expose the port your web application listens on
