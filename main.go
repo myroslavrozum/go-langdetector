@@ -21,6 +21,7 @@ func main() {
 	defer database.Close()
 
 	go train(database)
+	go webapp()
 
 	s := <-c
 	log.Println("Got signal:", s)

@@ -1,0 +1,66 @@
+package main
+
+import (
+	"bytes"
+	"go-langdetector/constants"
+	"html/template"
+	"log"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"rsc.io/quote"
+)
+
+func serveIndexPage(c *gin.Context) {
+	type Webdata struct {
+		Title              string
+		SupportedLanguages string
+	}
+
+	webdata := Webdata{
+		"language Detectur",
+		"",
+	}
+
+	i := 0
+	for _, v := range constants.UrlDictionary {
+		webdata.SupportedLanguages += v[0]
+		i++
+		if i < len(constants.UrlDictionary) {
+			webdata.SupportedLanguages += " | "
+		}
+	}
+
+	tf := template.Must(template.ParseGlob("templates/*"))
+	log.Println("Defined templates: ", tf.DefinedTemplates())
+
+	var stringBuffer bytes.Buffer
+	tf.ExecuteTemplate(&stringBuffer, "index.html.tpl", webdata)
+
+	c.DataFromReader(http.StatusOK,
+		int64(stringBuffer.Len()),
+		"text/html; charset=utf-8",
+		&stringBuffer,
+		nil,
+	)
+}
+
+func webapp() {
+	router := gin.Default()
+	router.Static("/assets", "./assets")
+	router.GET("/", serveIndexPage)
+
+	router.GET("/ping", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "pong",
+		})
+	})
+
+	router.PUT("/detect", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"message": quote.Go(),
+		})
+	})
+
+	router.Run() // listen and serve on 0.0.0.0:8080
+}
