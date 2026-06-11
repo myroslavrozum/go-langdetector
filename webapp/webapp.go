@@ -8,7 +8,6 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"rsc.io/quote"
 )
 
 func serveIndexPage(c *gin.Context) {
@@ -53,12 +52,6 @@ func Run() {
 	router.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "pong",
-		})
-	})
-
-	router.PUT("/detect", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": quote.Go(),
 		})
 	})
 

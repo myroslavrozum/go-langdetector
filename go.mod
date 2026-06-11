@@ -6,7 +6,6 @@ require (
 	github.com/dgraph-io/badger/v4 v4.9.2
 	github.com/gin-gonic/gin v1.12.0
 	golang.org/x/net v0.56.0
-	rsc.io/quote v1.5.2
 )
 
 require (
@@ -49,5 +48,4 @@ require (
 	golang.org/x/sys v0.46.0 // indirect
 	golang.org/x/text v0.38.0 // indirect
 	google.golang.org/protobuf v1.36.10 // indirect
-	rsc.io/sampler v1.3.0 // indirect
 )
