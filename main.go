@@ -14,7 +14,7 @@ func main() {
 
 	signal.Notify(c, os.Interrupt)
 
-	database, err := db.InitDB("langdetector-badger-db")
+	database, err := db.InitDB("data/langdetector-badger-db")
 	if err != nil {
 		log.Fatal(err)
 	}
