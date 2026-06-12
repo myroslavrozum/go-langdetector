@@ -15,13 +15,13 @@ func main() {
 
 	signal.Notify(c, os.Interrupt)
 
-	database, err := db.InitDB("data/langdetector-badger-db")
+	store, err := db.NewStore("data/langdetector-badger-db")
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer database.Close()
+	defer store.Close()
 
-	go train(database)
+	go train(store)
 	go webapp.Run()
 
 	s := <-c

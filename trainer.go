@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"go-langdetector/constants"
 	"go-langdetector/db"
 	"io"
@@ -50,7 +51,7 @@ func getTextFromURL(url string) (string, error) {
 		switch tokenType {
 		case html.ErrorToken:
 			err := tokenizer.Err()
-			if err == io.EOF {
+			if errors.Is(err, io.EOF) {
 				return textBuilder.String(), nil
 			}
 			return "", err
@@ -85,13 +86,10 @@ func extractTrigrammesFromText(text string) map[string]float64 {
 	newTrigrammes := make(map[string]int)
 	frequencies := make(map[string]float64)
 
-	for i := 0; i <= len(text)-3; i++ {
-		trigramme := text[i : i+3]
-		if _, exists := newTrigrammes[trigramme]; !exists {
-			newTrigrammes[trigramme] = 1
-		} else {
-			newTrigrammes[trigramme] += 1
-		}
+	runes := []rune(text)
+	for i := 0; i <= len(runes)-3; i++ {
+		trigramme := string(runes[i : i+3])
+		newTrigrammes[trigramme]++
 	}
 
 	numberOfTrigrammes := len(newTrigrammes)
@@ -129,8 +127,8 @@ func train(database *badger.DB) {
 				for _, x := range freqs {
 					absolutes = append(absolutes, math.Abs(avgFreq-x))
 				}
-				dispersion := Sum(absolutes) / float64(numberOfTrigrammes)
 
+				dispersion := Sum(absolutes) / float64(numberOfTrigrammes)
 				lowFreqValues := make([]float64, 0)
 				for _, x := range freqs {
 					if x < (avgFreq - dispersion) {

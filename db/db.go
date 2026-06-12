@@ -3,6 +3,7 @@ package db
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 
 	badger "github.com/dgraph-io/badger/v4"
@@ -48,8 +49,10 @@ func GetValueFromDB(db *badger.DB, key string) (string, error) {
 }
 
 func PutValueToDB(db *badger.DB, key string, value string) error {
-	log.Printf("Putting %s -> %s to DB.....", key, value[:10])
+	valLen := min(10, len(value))
+	log.Printf("Putting %s -> %s to DB.....", key, value[:valLen])
 	txn := db.NewTransaction(true)
+	defer txn.Discard()
 	err := txn.Set([]byte(key), []byte(value))
 	if err != nil {
 		return err
@@ -67,32 +70,44 @@ func RestoreTrigrammes(db *badger.DB, language string) (map[string]float64, erro
 		return nil, errors.New("language cannot be empty")
 	}
 
-	if trigrammes_str, err := GetValueFromDB(db, language); err != nil {
-		if err == badger.ErrKeyNotFound {
-			return nil, errors.New("no trigrammes found for language " + language)
+	trigrammes_str, err := GetValueFromDB(db, language)
+	if err != nil {
+		if errors.Is(err, badger.ErrKeyNotFound) {
+			return nil, fmt.Errorf("no trigrammes found for language %s", language)
 		}
 		return nil, err
-	} else {
-		trigrammes := make(map[string]float64, 0)
-		if err := json.Unmarshal([]byte(trigrammes_str), &trigrammes); err != nil {
-			return nil, err
-		}
-		return trigrammes, nil
 	}
+
+	var trigrammes map[string]float64
+	if err := json.Unmarshal([]byte(trigrammes_str), &trigrammes); err != nil {
+		return nil, err
+	}
+	return trigrammes, nil
 }
 
 func DumpTrigrammes(db *badger.DB, data map[string]map[string]float64) error {
 	txn := db.NewTransaction(true)
+	defer txn.Discard() // Automatically rolled back if not committed
+
 	for language, trigrammes := range data {
-		if trigrammes_str, err := json.Marshal(trigrammes); err != nil {
+		trigrammes_str, err := json.Marshal(trigrammes)
+		if err != nil {
 			return err
-		} else {
-			log.Printf("Dumping data: %s......", trigrammes_str[:10])
-			if err := txn.Set([]byte(language), trigrammes_str); err == badger.ErrTxnTooBig {
-				txn.Commit()
-				txn = db.NewTransaction(true)
-				txn.Set([]byte(language), []byte(trigrammes_str))
+		}
+
+		strLen := min(20, len(trigrammes_str))
+		log.Printf("Dumping data for %s language: %-20s......", language, string(trigrammes_str[:strLen]))
+
+		if err := txn.Set([]byte(language), trigrammes_str); errors.Is(err, badger.ErrTxnTooBig) {
+			if err := txn.Commit(); err != nil {
+				return err
 			}
+			txn = db.NewTransaction(true)
+			if err := txn.Set([]byte(language), trigrammes_str); err != nil {
+				return err
+			}
+		} else if err != nil {
+			return err
 		}
 	}
 	err := txn.Commit()
