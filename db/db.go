@@ -9,9 +9,13 @@ import (
 	badger "github.com/dgraph-io/badger/v4"
 )
 
-// Ensure all functions are exported for use outside this package
+// Store wraps a badger.DB instance to provide domain-specific database methods.
+type Store struct {
+	db *badger.DB
+}
 
-func InitDB(database string) (*badger.DB, error) {
+// NewStore initializes and returns a new Store.
+func NewStore(database string) (*Store, error) {
 	//opt := badger.DefaultOptions("").WithInMemory(true)
 	opt := badger.DefaultOptions(database)
 	db, err := badger.Open(opt)
@@ -19,12 +23,17 @@ func InitDB(database string) (*badger.DB, error) {
 		return nil, err
 	}
 
-	return db, nil
+	return &Store{db: db}, nil
 }
 
-func GetValueFromDB(db *badger.DB, key string) (string, error) {
+// Close cleanly shuts down the database.
+func (s *Store) Close() error {
+	return s.db.Close()
+}
+
+func (s *Store) GetValue(key string) (string, error) {
 	var rv string
-	err := db.View(func(txn *badger.Txn) error {
+	err := s.db.View(func(txn *badger.Txn) error {
 		item, err := txn.Get([]byte(key))
 
 		if err != nil {
@@ -48,10 +57,10 @@ func GetValueFromDB(db *badger.DB, key string) (string, error) {
 	return rv, nil
 }
 
-func PutValueToDB(db *badger.DB, key string, value string) error {
+func (s *Store) PutValue(key string, value string) error {
 	valLen := min(10, len(value))
 	log.Printf("Putting %s -> %s to DB.....", key, value[:valLen])
-	txn := db.NewTransaction(true)
+	txn := s.db.NewTransaction(true)
 	defer txn.Discard()
 	err := txn.Set([]byte(key), []byte(value))
 	if err != nil {
@@ -64,13 +73,13 @@ func PutValueToDB(db *badger.DB, key string, value string) error {
 	return nil
 }
 
-func RestoreTrigrammes(db *badger.DB, language string) (map[string]float64, error) {
+func (s *Store) RestoreTrigrammes(language string) (map[string]float64, error) {
 	log.Println("Restoring data.....")
 	if language == "" {
 		return nil, errors.New("language cannot be empty")
 	}
 
-	trigrammes_str, err := GetValueFromDB(db, language)
+	trigrammes_str, err := s.GetValue(language)
 	if err != nil {
 		if errors.Is(err, badger.ErrKeyNotFound) {
 			return nil, fmt.Errorf("no trigrammes found for language %s", language)
@@ -85,8 +94,8 @@ func RestoreTrigrammes(db *badger.DB, language string) (map[string]float64, erro
 	return trigrammes, nil
 }
 
-func DumpTrigrammes(db *badger.DB, data map[string]map[string]float64) error {
-	txn := db.NewTransaction(true)
+func (s *Store) DumpTrigrammes(data map[string]map[string]float64) error {
+	txn := s.db.NewTransaction(true)
 	defer txn.Discard() // Automatically rolled back if not committed
 
 	for language, trigrammes := range data {
@@ -102,7 +111,7 @@ func DumpTrigrammes(db *badger.DB, data map[string]map[string]float64) error {
 			if err := txn.Commit(); err != nil {
 				return err
 			}
-			txn = db.NewTransaction(true)
+			txn = s.db.NewTransaction(true)
 			if err := txn.Set([]byte(language), trigrammes_str); err != nil {
 				return err
 			}

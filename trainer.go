@@ -13,7 +13,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/dgraph-io/badger/v4"
 	"golang.org/x/net/html"
 )
 
@@ -100,7 +99,7 @@ func extractTrigrammesFromText(text string) map[string]float64 {
 	return frequencies
 }
 
-func train(database *badger.DB) {
+func train(store *db.Store) {
 	for {
 		updatedTrigrammes := make(map[string]map[string]float64)
 
@@ -115,7 +114,7 @@ func train(database *badger.DB) {
 			trigrammes := extractTrigrammesFromText(txtContent)
 
 			log.Printf("0. Got %d trigrammes for %s language...\n", len(trigrammes), data[0])
-			storedTrigrammes, err := db.RestoreTrigrammes(database, lang)
+			storedTrigrammes, err := store.RestoreTrigrammes(lang)
 			log.Println("1. Number of stored trigrammes: ", len(storedTrigrammes))
 			if err == nil && storedTrigrammes != nil {
 				numberOfTrigrammes := len(storedTrigrammes)
@@ -154,7 +153,7 @@ func train(database *badger.DB) {
 			}
 			updatedTrigrammes[lang] = storedTrigrammes
 		}
-		db.DumpTrigrammes(database, updatedTrigrammes)
+		store.DumpTrigrammes(updatedTrigrammes)
 		time.Sleep(constants.TrainInterval * time.Minute)
 	}
 }
