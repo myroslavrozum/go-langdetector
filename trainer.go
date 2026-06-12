@@ -16,7 +16,7 @@ import (
 	"golang.org/x/net/html"
 )
 
-const TrainInterval = 5
+const trainInterval = 5
 
 func Sum[T int | float64](arr []T) (s T) {
 	for _, v := range arr {
@@ -154,6 +154,6 @@ func train(store *db.Store) {
 			updatedTrigrammes[lang] = storedTrigrammes
 		}
 		store.DumpTrigrammes(updatedTrigrammes)
-		time.Sleep(constants.TrainInterval * time.Minute)
+		time.Sleep(trainInterval * time.Minute)
 	}
 }
