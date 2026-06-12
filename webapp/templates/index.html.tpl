@@ -39,9 +39,7 @@
             <textarea id="text" name="content" class="field span12"></textarea>
             <button class="btn btn-primary btn-large" type="submit">Detect Language</button>
           </form>
-          {{ if .log }}
-            <div class='log'>{{ .log }}</div>
-          {{ end }}
+            <div class='log'></div>
         </div>
       </div>
       <div class='raw-fluid pull-right'>
@@ -59,7 +57,7 @@
     <hr>
 
     <footer>
-      <p>&copy; Doitflex 2012</p>
+      <p>&copy; MRO 2012</p>
     </footer>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script> 

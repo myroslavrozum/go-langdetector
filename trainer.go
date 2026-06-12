@@ -1,8 +1,8 @@
 package main
 
 import (
-	constants "go-langdetector/constants"
-	db "go-langdetector/db"
+	"go-langdetector/constants"
+	"go-langdetector/db"
 	"io"
 	"log"
 	"maps"
@@ -16,20 +16,27 @@ import (
 	"golang.org/x/net/html"
 )
 
-func Sum[T int | float64](arr []T) (s T) { for _, v := range arr { s += v }; return }
+const TrainInterval = 5
 
-func getTextFromURL(url string) string {
-	client := &http.Client{}
+func Sum[T int | float64](arr []T) (s T) {
+	for _, v := range arr {
+		s += v
+	}
+	return s
+}
+
+func getTextFromURL(url string) (string, error) {
+	client := &http.Client{Timeout: 10 * time.Second}
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		log.Fatalf("Failed to create HTTP request: %v", err)
+		return "", err
 	}
 
 	req.Header.Set("User-Agent", "MroCustomBot/1.0")
 
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Fatalf("Failed to fetch URL: %s, error: %v", url, err)
+		return "", err
 	}
 	defer resp.Body.Close()
 
@@ -44,10 +51,9 @@ func getTextFromURL(url string) string {
 		case html.ErrorToken:
 			err := tokenizer.Err()
 			if err == io.EOF {
-				return textBuilder.String()
+				return textBuilder.String(), nil
 			}
-			log.Fatalf("Error tokenizing HTML: %v", err)
-			return ""
+			return "", err
 
 		case html.StartTagToken, html.SelfClosingTagToken:
 			token := tokenizer.Token()
@@ -98,12 +104,16 @@ func extractTrigrammesFromText(text string) map[string]float64 {
 
 func train(database *badger.DB) {
 	for {
-		updated_trigrammes := make(map[string]map[string]float64)
+		updatedTrigrammes := make(map[string]map[string]float64)
 
 		for lang, data := range constants.UrlDictionary {
 			url := data[1]
 			log.Printf("Fetching content for language: %s from URL: %s", lang, url)
-			txtContent := getTextFromURL(url)
+			txtContent, err := getTextFromURL(url)
+			if err != nil {
+				log.Printf("Failed to get text for %s: %v", lang, err)
+				continue
+			}
 			trigrammes := extractTrigrammesFromText(txtContent)
 
 			log.Printf("0. Got %d trigrammes for %s language...\n", len(trigrammes), data[0])
@@ -128,7 +138,7 @@ func train(database *badger.DB) {
 					}
 				}
 				log.Printf("%s: Total values %d,  min_freq: %f, avg frequency: %f, dispersion %f, LF items %d\n",
-										lang, numberOfTrigrammes, minFreq, avgFreq, dispersion, len(lowFreqValues))
+					lang, numberOfTrigrammes, minFreq, avgFreq, dispersion, len(lowFreqValues))
 				log.Println("2. Calculating updated values:")
 				for trigramme, newFreq := range trigrammes {
 					originalFreq, exists := storedTrigrammes[trigramme]
@@ -144,9 +154,9 @@ func train(database *badger.DB) {
 			} else {
 				storedTrigrammes = trigrammes
 			}
-			updated_trigrammes[lang] = storedTrigrammes
+			updatedTrigrammes[lang] = storedTrigrammes
 		}
-		db.DumpTrigrammes(database, updated_trigrammes)
+		db.DumpTrigrammes(database, updatedTrigrammes)
 		time.Sleep(constants.TrainInterval * time.Minute)
 	}
 }

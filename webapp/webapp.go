@@ -1,11 +1,9 @@
 package webapp
 
 import (
-	"bytes"
 	"go-langdetector/constants"
-	"html/template"
-	"log"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -17,35 +15,21 @@ func serveIndexPage(c *gin.Context) {
 	}
 
 	webdata := Webdata{
-		"language Detectur",
-		"",
+		Title: "language Detectur",
 	}
 
-	i := 0
+	var langs []string
 	for _, v := range constants.UrlDictionary {
-		webdata.SupportedLanguages += v[0]
-		i++
-		if i < len(constants.UrlDictionary) {
-			webdata.SupportedLanguages += " | "
-		}
+		langs = append(langs, v[0])
 	}
+	webdata.SupportedLanguages = strings.Join(langs, " | ")
 
-	tf := template.Must(template.ParseGlob("./webapp/templates/*"))
-	log.Println("Defined templates: ", tf.DefinedTemplates())
-
-	var stringBuffer bytes.Buffer
-	tf.ExecuteTemplate(&stringBuffer, "index.html.tpl", webdata)
-
-	c.DataFromReader(http.StatusOK,
-		int64(stringBuffer.Len()),
-		"text/html; charset=utf-8",
-		&stringBuffer,
-		nil,
-	)
+	c.HTML(http.StatusOK, "index.html.tpl", webdata)
 }
 
 func Run() {
 	router := gin.Default()
+	router.LoadHTMLGlob("./webapp/templates/*")
 	router.Static("/assets", "./webapp/assets")
 	router.GET("/", serveIndexPage)
 
