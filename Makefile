@@ -8,6 +8,7 @@ build-static:
 	GOOS=darwin
 	GOARCH=amd64
 	go build -ldflags="-w -s" -o ./bin/go-langdetector-static .
+	strip ./bin/go-langdetector-static
 
 compress: build-static
 	@echo "Compressing the executable...."
