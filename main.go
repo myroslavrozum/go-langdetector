@@ -6,6 +6,7 @@ import (
 	"os/signal"
 
 	"go-langdetector/db"
+	"go-langdetector/trainer"
 	"go-langdetector/webapp"
 )
 
@@ -21,10 +22,9 @@ func main() {
 	}
 	defer store.Close()
 
-	go train(store)
-	go webapp.Run()
+	go trainer.Train(store)
+	go webapp.Run(store)
 
 	s := <-c
 	log.Println("Got signal:", s)
-
 }
