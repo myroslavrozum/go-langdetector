@@ -13,3 +13,10 @@ var UrlDictionary = map[string][]string{
 	`ar`: {`Arabic`, `http://fa.wikipedia.org/wiki/%D9%88%DB%8C%DA%98%D9%87:%D8%B5%D9%81%D8%AD%D9%87_%D8%AA%D8%B5%D8%A7%D8%AF%D9%81%DB%8C`},
 	`pt`: {`Portuguese`, `http://pt.wikipedia.org/wiki/Especial:Aleat%C3%B3ria`},
 }
+
+func Sum[T int | float64](arr []T) (s T) {
+	for _, v := range arr {
+		s += v
+	}
+	return s
+}
