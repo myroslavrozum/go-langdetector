@@ -35,7 +35,7 @@
       <div class="span9"> 
         <p>{{ .SupportedLanguages }}</p>
         <div class="row-fluid">
-          <form id="form" class="well form-vertical" action="/detect" method="post">
+          <form id="form" class="well form-vertical">
             <textarea id="text" name="content" class="field span12"></textarea>
             <button class="btn btn-primary btn-large" type="submit">Detect Language</button>
           </form>
@@ -60,8 +60,9 @@
       <p>&copy; MRO 2012</p>
     </footer>
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script> 
-    <script src="/assets/js/bootstrap.min.js"></script>
+  <script src="https://code.jquery.com/jquery-4.0.0.min.js"></script>
+  <script src="/assets/js/bootstrap.min.js"></script>
+  <script language="javascript" type="text/javascript" src="/assets/js/app.js"></script>
     {{ if .DetectedLanguage }}
     <script language='javascript' type='text/javascript'>
       $(document).ready(function(){
