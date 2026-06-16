@@ -23,6 +23,10 @@ func GetTextFromURL(url string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	if resp.StatusCode != 200 {
+		return "", errors.New(resp.Status)
+	}
+
 	defer resp.Body.Close()
 
 	tokenizer := html.NewTokenizer(resp.Body)
