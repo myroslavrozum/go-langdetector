@@ -1,2 +1,3 @@
 data/langdetector-badger-db/*
 bin/
+.vscode/
