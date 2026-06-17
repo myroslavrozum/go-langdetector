@@ -13,6 +13,13 @@ import (
 
 const trainInterval = 5
 
+func sum[T int | float64](arr []T) (s T) {
+	for _, v := range arr {
+		s += v
+	}
+	return s
+}
+
 func ExtractTrigrammesFromText(text string) map[string]float64 {
 	newTrigrammes := make(map[string]int)
 	frequencies := make(map[string]float64)
@@ -51,7 +58,7 @@ func Train(store *db.Store) {
 			if err == nil && storedTrigrammes != nil {
 				numberOfTrigrammes := len(storedTrigrammes)
 				freqs := slices.Collect(maps.Values(storedTrigrammes))
-				avgFreq := constants.Sum(freqs) / float64(numberOfTrigrammes)
+				avgFreq := sum(freqs) / float64(numberOfTrigrammes)
 				minFreq := slices.Min(freqs)
 
 				absolutes := make([]float64, 0, len(freqs))
@@ -59,7 +66,7 @@ func Train(store *db.Store) {
 					absolutes = append(absolutes, math.Abs(avgFreq-x))
 				}
 
-				dispersion := constants.Sum(absolutes) / float64(numberOfTrigrammes)
+				dispersion := sum(absolutes) / float64(numberOfTrigrammes)
 				lowFreqValues := make([]float64, 0)
 				for _, x := range freqs {
 					if x < (avgFreq - dispersion) {
