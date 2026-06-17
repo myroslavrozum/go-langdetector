@@ -2,7 +2,7 @@ package algos
 
 import "math"
 
-// Implement Cosine Distance algorythm
+// Cosine Distance algorythm
 func CalculateColsineDistances(model map[string]float64, vector2investigate map[string]float64) float64 {
 	var dotProduct, normModel, normInvestigate float64
 
