@@ -1,12 +1,12 @@
 package webapp
 
 import (
+	"go-langdetector/algos"
 	"go-langdetector/constants"
 	"go-langdetector/crawler"
 	"go-langdetector/db"
 	"go-langdetector/trainer"
 	"log"
-	"maps"
 	"math"
 	"net/http"
 	"strings"
@@ -31,23 +31,6 @@ func serveIndexPage(c *gin.Context) {
 	webdata.SupportedLanguages = strings.Join(langs, " | ")
 
 	c.HTML(http.StatusOK, "index.html.tpl", webdata)
-}
-
-func calculateDistances(model map[string]float64, trigrammes2investigate map[string]float64) float64 {
-	// var distance float64
-	distances := make(map[string]float64)
-
-	for k, observedFrequency := range trigrammes2investigate {
-		modelFrequency := model[k]
-		d := math.Abs(observedFrequency - modelFrequency)
-		// distance += d
-		distances[k] = d
-	}
-	var d float64
-	for v := range maps.Values(distances) {
-		d += v
-	}
-	return d
 }
 
 func Run(store *db.Store) {
@@ -98,7 +81,7 @@ func Run(store *db.Store) {
 		var minD float64 = math.MaxFloat64
 		var minLang string
 		for lang, v := range constants.UrlDictionary {
-			d := calculateDistances(trigrammes[lang], trigrammes2investigate)
+			d := algos.CalculateColsineDistances(trigrammes[lang], trigrammes2investigate)
 			distances[lang] = d
 			log.Printf("Calculated distance to %s is %f", v[0], d)
 			if d < minD {
