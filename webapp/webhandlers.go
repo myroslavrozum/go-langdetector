@@ -16,18 +16,18 @@ import (
 func serveIndexPage(c *gin.Context) {
 	type Webdata struct {
 		Title              string
-		SupportedLanguages string
+		SupportedLanguages map[string]string
 	}
 
 	webdata := Webdata{
-		Title: "language Detectur",
+		Title:              "language Detectur",
+		SupportedLanguages: make(map[string]string),
 	}
 
-	var langs []string
-	for _, v := range constants.UrlDictionary {
-		langs = append(langs, v[0])
+	for shortName, v := range constants.UrlDictionary {
+		fullName := v[0]
+		webdata.SupportedLanguages[shortName] = fullName
 	}
-	webdata.SupportedLanguages = strings.Join(langs, " | ")
 
 	c.HTML(http.StatusOK, "index.html.tpl", webdata)
 }
@@ -46,6 +46,8 @@ func Detect(trigrammes map[string]map[string]float64) gin.HandlerFunc {
 				log.Println("Setting `data` to: ", contentToCheck)
 				data = contentToCheck
 			}
+		} else {
+			data = contentToCheck
 		}
 
 		trigrammes2investigate := trainer.ExtractTrigrammesFromText(data)
@@ -53,6 +55,7 @@ func Detect(trigrammes map[string]map[string]float64) gin.HandlerFunc {
 
 		distances := make(map[string]float64)
 		var minD float64 = math.MaxFloat64
+		var minLangFull string
 		var minLang string
 		for lang, v := range constants.UrlDictionary {
 			d := algos.CalculateColsineDistances(trigrammes[lang], trigrammes2investigate)
@@ -60,15 +63,17 @@ func Detect(trigrammes map[string]map[string]float64) gin.HandlerFunc {
 			log.Printf("Calculated distance to %s is %f", v[0], d)
 			if d < minD {
 				minD = d
-				minLang = v[0]
+				minLangFull = v[0]
+				minLang = lang
 			}
 		}
-		log.Printf("Minimum distance (%f) is to %s", minD, minLang)
+		log.Printf("Minimum distance (%f) is to %s", minD, minLangFull)
 
 		c.JSON(http.StatusOK, gin.H{
-			"status":  "posted",
-			"minD":    minD,
-			"minLang": minLang,
+			"status":      "posted",
+			"minD":        minD,
+			"minLangFull": minLangFull,
+			"minLang":     minLang,
 		})
 	}
 }

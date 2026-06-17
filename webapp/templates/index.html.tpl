@@ -33,7 +33,7 @@
     </div>
     <div class='container-fluid'>
       <div class="span9"> 
-        <p>{{ .SupportedLanguages }}</p>
+        <p>URL, text... anything</p>
         <div class="row-fluid">
           <form id="form" class="well form-vertical">
             <textarea id="text" name="content" class="field span12"></textarea>
@@ -47,7 +47,9 @@
           <div class="well sidebar-nav">
             <ul class="nav nav-list">
               <li class="nav-header">Supported languages</li>
-                {{ .SupportedLanguages }}
+              {{ range $shortName, $fullName := .SupportedLanguages }}
+              <li id=langmarker_{{ $shortName}}><a>{{ $fullName }}</a></li>
+              {{ end }}
                <li><a href='/train'>Train</a></li>
              </ul>
           </div>
@@ -63,13 +65,5 @@
   <script src="https://code.jquery.com/jquery-4.0.0.min.js"></script>
   <script src="/assets/js/bootstrap.min.js"></script>
   <script language="javascript" type="text/javascript" src="/assets/js/app.js"></script>
-    {{ if .DetectedLanguage }}
-    <script language='javascript' type='text/javascript'>
-      $(document).ready(function(){
-        $('#langmarker_{{ .DetectedLanguage }}').addClass('active');
-      });
-    </script>
-    {{ end }}
-    <script language='javascript' type='text/javascript'>alert('Gotcha!')</script>
   </body>
 <html>

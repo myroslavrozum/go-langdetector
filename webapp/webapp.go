@@ -17,7 +17,7 @@ func Run(store *db.Store) {
 		var err error
 		trigrammes[lang], err = store.RestoreTrigrammes(lang)
 		if err != nil {
-			log.Panic(err)
+			log.Println(err)
 		}
 	}
 

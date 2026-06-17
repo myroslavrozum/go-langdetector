@@ -8,8 +8,9 @@ $(document).ready(function() {
             data: $(this).serialize(),
             dataType: 'json',
             success: function(response) {
-                alert('Form submitted successfully!');
-                console.log(response);
+                console.log('Form submitted successfully, detected language is: '+ response.minLangFull);
+                $("*").removeClass("active")
+                $('#langmarker_' + response.minLang).addClass('active');
             },
             error: function(xhr, status, error) {
                 alert('An error occurred during submission.');
