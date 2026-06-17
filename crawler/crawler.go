@@ -6,9 +6,22 @@ import (
 	"net/http"
 	"strings"
 	"time"
+	"unicode"
+	"unicode/utf8"
 
 	"golang.org/x/net/html"
 )
+
+func fixUtf(r rune) rune {
+	if !(unicode.IsLetter(r) || unicode.IsDigit(r) || unicode.IsSpace(r)) {
+		return -1
+	}
+
+	if r == utf8.RuneError {
+		return -1
+	}
+	return r
+}
 
 func GetTextFromURL(url string) (string, error) {
 	client := &http.Client{Timeout: 10 * time.Second}
@@ -60,6 +73,10 @@ func GetTextFromURL(url string) (string, error) {
 			if !inSkipTag {
 				token := tokenizer.Token()
 				trimmed := strings.TrimSpace(token.Data)
+				trimmed = strings.ReplaceAll(trimmed, "\n", " ")
+				trimmed = strings.ReplaceAll(trimmed, "\t", " ")
+				trimmed = strings.ReplaceAll(trimmed, "\r", " ")
+				trimmed = strings.Map(fixUtf, trimmed)
 
 				if len(trimmed) > 0 {
 					trimmed += " "
