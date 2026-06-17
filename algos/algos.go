@@ -3,24 +3,24 @@ package algos
 import "math"
 
 // Cosine Distance algorythm
-func CalculateColsineDistances(model map[string]float64, vector2investigate map[string]float64) float64 {
-	var dotProduct, normModel, normInvestigate float64
+func CalculateColsineDistances(model map[string]float64, vector2compare map[string]float64) float64 {
+	var dotProduct, normModel, norm2comapare float64
 
-	for k, vModel := range model {
-		normModel += vModel * vModel
-		if vInvestigate, ok := vector2investigate[k]; ok {
-			dotProduct += vModel * vInvestigate
+	for k, frequencyModel := range model {
+		normModel += frequencyModel * frequencyModel
+		if frequency2compare, ok := vector2compare[k]; ok {
+			dotProduct += frequencyModel * frequency2compare
 		}
 	}
 
-	for _, vInvestigate := range vector2investigate {
-		normInvestigate += vInvestigate * vInvestigate
+	for _, frequency2compare := range vector2compare {
+		norm2comapare += frequency2compare * frequency2compare
 	}
 
-	if normModel == 0 || normInvestigate == 0 {
+	if normModel == 0 || norm2comapare == 0 {
 		return 1.0
 	}
 
-	cosineSimilarity := dotProduct / (math.Sqrt(normModel) * math.Sqrt(normInvestigate))
+	cosineSimilarity := dotProduct / (math.Sqrt(normModel) * math.Sqrt(norm2comapare))
 	return 1.0 - cosineSimilarity
 }
