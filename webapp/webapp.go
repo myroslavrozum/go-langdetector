@@ -37,7 +37,7 @@ func Run(store *db.Store, logger chan string) {
 
 	router.POST(`/detect`, Detect(trigrammes))
 
-	router.GET("/echo", wsServe(logger))
+	router.GET("/getTrainerLogs", wsServe(logger))
 
 	router.Run() // listen and serve on 0.0.0.0:8080
 }

@@ -19,7 +19,7 @@ $(document).ready(function() {
     });
 
     //let socket = new WebSocket("wss://javascript.info/article/websocket/demo/hello");
-    let socket = new WebSocket("ws://localhost:8080/echo");
+    let socket = new WebSocket("ws://localhost:8080/getTrainerLogs");
     socket.onopen = function(e) {
         console.log("[open] Connection established");
         console.log("Sending to server");
