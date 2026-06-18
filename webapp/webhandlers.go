@@ -9,8 +9,11 @@ import (
 	"math"
 	"net/http"
 	"strings"
+	"sync"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gorilla/websocket"
 )
 
 func serveIndexPage(c *gin.Context) {
@@ -75,5 +78,80 @@ func Detect(trigrammes map[string]map[string]float64) gin.HandlerFunc {
 			"minLangFull": minLangFull,
 			"minLang":     minLang,
 		})
+	}
+}
+
+var upgrader = websocket.Upgrader{
+	ReadBufferSize:  1024,
+	WriteBufferSize: 1024,
+	// CheckOrigin allows cross-origin requests. Adjust for production security.
+	CheckOrigin: func(r *http.Request) bool {
+		return true
+	},
+}
+
+type Client struct {
+	conn     *websocket.Conn
+	send     chan []byte
+	mu       sync.Mutex // Ensures closing happens only once
+	isClosed bool
+}
+
+func (c *Client) writePump() {
+	defer func() {
+		c.mu.Lock()
+		if !c.isClosed {
+			c.conn.Close()
+			c.isClosed = true
+		}
+		c.mu.Unlock()
+	}()
+
+	for {
+		select {
+		case message, ok := <-c.send:
+			if !ok {
+				// The channel was closed by the hub.
+				c.conn.WriteMessage(websocket.CloseMessage, []byte{})
+				return
+			}
+
+			// Write the message to the websocket
+			c.conn.WriteMessage(websocket.TextMessage, message)
+		}
+	}
+}
+
+func wsServe(logger chan string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
+		if err != nil {
+			log.Println("Upgrade error:", err)
+			return
+		}
+
+		client := &Client{
+			conn: conn,
+			send: make(chan []byte, 256), // Buffered channel for async queuing
+		}
+
+		// Start the async writer in a separate goroutine
+		go client.writePump()
+
+		// --- Example of generating and sending async messages ---
+		// In a real application, messages would come from a central broadcast hub.
+		go func() {
+			for {
+				time.Sleep(2 * time.Second)
+				l := <-logger
+				select {
+				case client.send <- []byte([]byte(l)):
+				default:
+					// If the send channel is full or closed, break out of the loop
+					log.Println("Failed to send message, client disconnected?")
+					return
+				}
+			}
+		}()
 	}
 }

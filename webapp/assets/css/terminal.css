@@ -1,0 +1,41 @@
+.terminal-window {
+    background-color: #050505;
+    color: #33ff33; /* Classic terminal green */
+    font-family: 'Courier New', Courier, monospace;
+    padding: 20px;
+    border-radius: 4px;
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.terminal-prompt {
+    color: #33ffff; /* Cyan for the user/host part */
+    font-weight: bold;
+}
+
+.terminal-path {
+    color: #3366ff; /* Blue for the current directory */
+}
+
+.terminal-input {
+    color: #ffffff; /* White text for typed commands */
+    background: transparent;
+    border: none;
+    outline: none;
+    font-family: inherit;
+    font-size: inherit;
+    width: 70%;
+}
+
+.cursor {
+    display: inline-block;
+    width: 8px;
+    height: 15px;
+    background: #33ff33;
+    animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+    50% { opacity: 0.0; }
+}

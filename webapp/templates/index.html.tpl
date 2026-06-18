@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <link href="/assets/css/bootstrap.css" rel="stylesheet">
+    <link href="/assets/css/terminal.css" rel="stylesheet">
     <style type="text/css">
       body {
         padding-top: 60px;
@@ -21,7 +22,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </a>
-          <a class="brand" href="/">Language Detector</a>
+          <a class="brand" href="/">{{ .Title }}</a>
             <div class="nav-collapse">
               <ul class="nav">
                 <li class="active"><a href="#">Home</a></li>
@@ -39,10 +40,10 @@
             <textarea id="text" name="content" class="field span12"></textarea>
             <button class="btn btn-primary btn-large" type="submit">Detect Language</button>
           </form>
-            <div class='log'></div>
+            <div id='logger' class="terminal-window"></div>
         </div>
       </div>
-      <div class='raw-fluid pull-right'>
+      <div class='raw-fluid'>
         <div class='span3'>
           <div class="well sidebar-nav">
             <ul class="nav nav-list">
@@ -59,7 +60,7 @@
     <hr>
 
     <footer>
-      <p>&copy; MRO 2012</p>
+      <p>&copy; MRO 2026</p>
     </footer>
 
   <script src="https://code.jquery.com/jquery-4.0.0.min.js"></script>

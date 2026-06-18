@@ -5,6 +5,7 @@ go 1.26.4
 require (
 	github.com/dgraph-io/badger/v4 v4.9.2
 	github.com/gin-gonic/gin v1.12.0
+	github.com/gorilla/websocket v1.5.3
 	golang.org/x/net v0.56.0
 )
 

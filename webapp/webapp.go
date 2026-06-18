@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func Run(store *db.Store) {
+func Run(store *db.Store, logger chan string) {
 	router := gin.Default()
 
 	trigrammes := make(map[string]map[string]float64)
@@ -36,6 +36,8 @@ func Run(store *db.Store) {
 	})
 
 	router.POST(`/detect`, Detect(trigrammes))
+
+	router.GET("/echo", wsServe(logger))
 
 	router.Run() // listen and serve on 0.0.0.0:8080
 }

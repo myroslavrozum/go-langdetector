@@ -1,6 +1,7 @@
 package trainer
 
 import (
+	"fmt"
 	"go-langdetector/constants"
 	"go-langdetector/crawler"
 	"go-langdetector/db"
@@ -38,10 +39,12 @@ func ExtractTrigrammesFromText(text string) map[string]float64 {
 	return frequencies
 }
 
-func Train(store *db.Store) {
+func Train(store *db.Store, logger chan string) {
+	c := make(chan string)
+	defer close(c)
+
 	for {
 		updatedTrigrammes := make(map[string]map[string]float64)
-
 		for lang, data := range constants.UrlDictionary {
 			url := data[1]
 			log.Printf("Fetching content for language: %s from URL: %s", lang, url)
@@ -73,9 +76,12 @@ func Train(store *db.Store) {
 						lowFreqValues = append(lowFreqValues, x)
 					}
 				}
-				log.Printf("%s: Total values %d,  min_freq: %f, avg frequency: %f, dispersion %f, LF items %d\n",
+				m := fmt.Sprintf("%s: Total values %d,  min_freq: %f, avg frequency: %f, dispersion %f, LF items %d\n",
 					lang, numberOfTrigrammes, minFreq, avgFreq, dispersion, len(lowFreqValues))
-				log.Println("2. Calculating updated values:")
+				log.Println(m)
+				logger <- m
+
+				log.Printf("2. Calculating updated values:")
 				for trigramme, newFreq := range trigrammes {
 					originalFreq, exists := storedTrigrammes[trigramme]
 					var updatedFreq float64
