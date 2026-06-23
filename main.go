@@ -10,7 +10,7 @@ import (
 	"go-langdetector/webapp"
 )
 
-func main() {
+func main_() {
 	c := make(chan os.Signal, 1)
 	logger := make(chan string)
 	defer close(logger)
@@ -29,4 +29,8 @@ func main() {
 
 	s := <-c
 	log.Println("Got signal:", s)
+}
+
+func main() {
+	log.Println(trainer.ExtractTrigrammesFromText("Hello, world!"))
 }
