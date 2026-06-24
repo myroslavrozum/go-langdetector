@@ -1,10 +1,20 @@
-.PHONY build build-static clean clean-data clean-all 
+.PHONY: clean clean-data clean-all 
 
-build:
+templ-generate:
+	go tool templ generate
+
+test:
+	go test ./...
+
+build: templ-generate test
 	@echo "Building the executable...."
+	CGO_ENABLED=0
+	GOOS=darwin
+	GOARCH=amd64
+	go tool templ generate
 	go build -o ./bin/go-langdetector .
 
-build-static:
+build-static: test
 	@echo "Building a static executable...."
 	CGO_ENABLED=0
 	GOOS=darwin
@@ -20,7 +30,7 @@ run: build
 	@echo "Running the executable...."
 	./bin/go-langdetector
 
-clean:
+clean-bin:
 	rm -f ./bin/*
 
 all: build run clean
@@ -46,7 +56,10 @@ docker-clean:
 clean-data:
 	rm -rdf ./data/*
 
-clean-all: clean clean-data
+clean-templ-generated:
+	rm webapp/*_templ.go
+
+clean: clean-bin clean-data clean-templ-generated
 	go clean -modcache
 
 docker: docker-build docker-run

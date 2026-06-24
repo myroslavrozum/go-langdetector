@@ -1,6 +1,7 @@
 package webapp
 
 import (
+	"context"
 	"go-langdetector/algos"
 	"go-langdetector/constants"
 	"go-langdetector/crawler"
@@ -17,22 +18,18 @@ import (
 )
 
 func serveIndexPage(c *gin.Context) {
-	type Webdata struct {
-		Title              string
-		SupportedLanguages map[string]string
-	}
-
-	webdata := Webdata{
-		Title:              "language Detectur",
-		SupportedLanguages: make(map[string]string),
-	}
-
+	supportedLanguages := make(map[string]string)
 	for shortName, v := range constants.UrlDictionary {
 		fullName := v[0]
-		webdata.SupportedLanguages[shortName] = fullName
+		supportedLanguages[shortName] = fullName
 	}
 
-	c.HTML(http.StatusOK, "index.html.tpl", webdata)
+	cntxt := c.Request.Context()
+	cntxt = context.WithValue(cntxt, "Title", "language Detectur")
+	cntxt = context.WithValue(cntxt, "SupportedLanguages", supportedLanguages)
+
+	component := index()
+	component.Render(cntxt, c.Writer)
 }
 
 func Detect(trigrammes map[string]map[string]float64) gin.HandlerFunc {

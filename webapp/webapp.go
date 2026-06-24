@@ -21,8 +21,6 @@ func Run(store *db.Store, logger chan string) {
 		}
 	}
 
-	router.LoadHTMLGlob("./webapp/templates/*")
-
 	router.Static("/assets", "./webapp/assets")
 
 	router.Static("/js", "./webapp/js")

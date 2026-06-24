@@ -1,0 +1,129 @@
+package webapp
+
+templ footer() {
+	<footer>
+	<p>&copy; MRO 2026</p>
+	</footer>
+}
+
+templ navbar() {
+	<div class="navbar navbar-fixed-top">
+		<div class="navbar-inner">
+			<div class="container-fluid">
+				<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</a>
+				<a class="brand" href="/">{ ctx.Value("Title").(string) }</a>
+				<div class="nav-collapse">
+					<div class="nav-collapse">
+					<ul class="nav">
+						<li class="active"><a href="#">Home</a></li>
+						<li><a href="#about">About</a></li>
+					</ul>
+					</div><!--/.nav-collapse -->
+				</div>
+			</div>
+		</div>
+	</div>
+}
+
+templ logger() {
+	<div id="logger" class="terminal-window"></div>
+}
+
+templ styles() {
+	<link href="/assets/css/bootstrap.css" rel="stylesheet">
+	<link href="/assets/css/terminal.css" rel="stylesheet">
+	<style type="text/css">
+	body {
+		padding-top: 60px;
+		padding-bottom: 40px;
+	}
+	.sidebar-nav {
+		padding: 9px 0;
+	}
+	</style>
+}
+
+templ scripts() {
+	<script src="https://code.jquery.com/jquery-4.0.0.min.js"></script>
+	<script src="/assets/js/bootstrap.min.js"></script>
+	<script language="javascript" type="text/javascript" src="/assets/js/app.js"></script>
+}
+
+templ head() {
+	<head>
+	 	{ children... }
+	</head>
+}
+
+templ body() {
+	<body>
+		{ children... }
+	</body>
+}
+
+templ mainPanel() {
+	<div class='container-fluid'>
+		{ children... }
+	</div>
+}
+
+templ leftPanel() {
+	<div class="span9">
+	{ children... }
+	</div>
+}
+
+templ rightPanel() {
+	<div class='raw-fluid'>
+		<div class='span3'>
+			<div class="well sidebar-nav">
+				<ul class="nav nav-list">
+					<li class="nav-header">Supported languages</li>
+					for shortName, fullName := range ctx.Value("SupportedLanguages").(map[string]string) {
+						 <li id={ "langmarker_" + shortName }><a>{ fullName }</a></li>
+					}
+					<li><a href='/train'>Train</a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+}
+
+templ inputForm() {
+	<p>URL, text... anything</p>
+	<div class="row-fluid">
+		<form id="form" class="well form-vertical">
+			<textarea id="text" name="content" class="field span12"></textarea>
+			<button class="btn btn-primary btn-large" type="submit">Detect Language</button>
+		</form>
+	</div>
+}
+
+templ horizontalDivider() {
+	<hr>
+}
+
+templ index() {
+	@head() {
+		@styles()
+	}
+	
+	@body() {
+		@navbar()
+		@mainPanel() {
+			@leftPanel() {
+				@inputForm()
+				@logger()
+			}
+			@rightPanel()
+		}
+		@horizontalDivider()
+
+		@footer()
+		@scripts()
+	}
+}
