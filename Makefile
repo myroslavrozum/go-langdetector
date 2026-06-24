@@ -1,3 +1,5 @@
+.PHONY build build-static clean clean-data clean-all 
+
 build:
 	@echo "Building the executable...."
 	go build -o ./bin/go-langdetector .
@@ -43,5 +45,8 @@ docker-clean:
 
 clean-data:
 	rm -rdf ./data/*
+
+clean-all: clean clean-data
+	go clean -modcache
 
 docker: docker-build docker-run
