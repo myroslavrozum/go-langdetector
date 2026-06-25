@@ -3,6 +3,7 @@ package algos
 import "math"
 
 // Cosine Distance algorythm
+// https://en.wikipedia.org/wiki/Cosine_similarity
 func CalculateColsineDistances(model map[string]float64, vector2compare map[string]float64) float64 {
 	var dotProduct, normModel, norm2comapare float64
 
