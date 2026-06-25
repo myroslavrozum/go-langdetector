@@ -9,8 +9,8 @@ $(document).ready(function() {
             dataType: 'json',
             success: function(response) {
                 console.log('Form submitted successfully, detected language is: '+ response.minLangFull);
-                $("*").removeClass("active")
-                $('#langmarker_' + response.minLang).addClass('active');
+                $("*").removeClass("detected")
+                $('#langmarker_' + response.minLang).addClass('detected');
             },
             error: function(xhr, status, error) {
                 alert('An error occurred during submission.');

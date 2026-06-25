@@ -16,6 +16,8 @@ func readModelFromContext(value any) Model {
 	return Model{}
 }
 
+//go:generate go tool templ generate
+//go:generate tailwindcss -i assets/css/styles_template.css -o assets/css/styles_compiled.css
 func Run(store *db.Store, logger chan string, version string) {
 	var model Model
 
@@ -44,6 +46,7 @@ func Run(store *db.Store, logger chan string, version string) {
 	router.Static("/js", "./webapp/js")
 
 	router.GET("/", serveIndexPage(model))
+	router.GET("/notailwind", serveIndexPage(model))
 	router.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "pong",

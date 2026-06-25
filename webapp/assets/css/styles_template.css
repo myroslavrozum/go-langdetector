@@ -1,3 +1,8 @@
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/preflight.css" layer(base);
+@import "tailwindcss/utilities.css" layer(utilities);
+
 .terminal-window {
     background-color: #050505;
     color: #33ff33; /* Classic terminal green */
@@ -38,4 +43,9 @@
 
 @keyframes blink {
     50% { opacity: 0.0; }
+}
+
+.active {
+    background: #282828;
+    color: #ffffff;
 }

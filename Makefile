@@ -3,21 +3,20 @@ HEAD_HASH := $(shell git rev-parse HEAD)
 
 .PHONY: makeversion clean clean-data clean-all 
 
-build: makeversion templ-generate test
+build: makeversion generate test
 	@echo "Building the executable...."
 	CGO_ENABLED=0
 	GOOS=darwin
 	GOARCH=amd64
-	
-	go tool templ generate
+
 	go build -o ./bin/go-langdetector .
 
 makeversion:
 	@echo $(HEAD_HASH)
 	@echo $(HEAD_HASH) > .version
 
-templ-generate:
-	go tool templ generate
+generate:
+	go generate ./...
 
 test:
 	go test ./...
@@ -37,10 +36,11 @@ compress: build-static
 run:
 	@echo "Running the app...."
 	@echo "DEV" > .version
-	go tool templ generate
+	go generate ./...
 	go run .
 
 clean-bin:
+	@echo "DEV" > .version
 	rm -f ./bin/*
 
 all: build run clean
@@ -66,10 +66,19 @@ docker-clean:
 clean-data:
 	rm -rdf ./data/*
 
-clean-templ-generated:
-	rm webapp/*_templ.go
+clean-generated:
+	-rm webapp/*_templ.go
+	-rm webapp/*_compiled.css
 
-clean: clean-bin clean-data clean-templ-generated
+clean: clean-bin clean-data clean-generated
 	go clean -modcache
 
 docker: docker-build docker-run
+
+deps:
+	go get -u github.com/dgraph-io/badger/v4
+	go get -u github.com/gin-gonic/gin
+	go get -tool github.com/a-h/templ/cmd/templ@latest
+	go get -u github.com/gorilla/websocket
+	brew install aureuma/tailwindcss/tailwindcss-standalone
+	go mod tidy

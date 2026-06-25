@@ -18,20 +18,10 @@ import (
 
 func serveIndexPage(model Model) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// var model Model
-
-		// model.Title = "Language Detectur"
-		// model.SupportedLanguages = make(map[string]string)
-
-		// for shortName, v := range constants.UrlDictionary {
-		// 	fullName := v[0]
-		// 	model.SupportedLanguages[shortName] = fullName
-		// }
-
 		cntxt := c.Request.Context()
 		cntxt = context.WithValue(cntxt, "Model", model)
-
 		component := index()
+
 		component.Render(cntxt, c.Writer)
 	}
 }

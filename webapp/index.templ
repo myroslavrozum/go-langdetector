@@ -1,117 +1,140 @@
 package webapp
 
 templ errorMsg(msg string) {
-	<div class="error-message">{ msg }</div>
+	<div class="error-message bg-red-300 fill-red-600">{ msg }</div>
 }
 
 templ head(model Model) {
 	<head>
+		<meta charset="UTF-8">
+   		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	 	{ children... }
 	</head>
 }
 
 templ styles(model Model) {
-	<link href="/assets/css/bootstrap.css" rel="stylesheet">
-	<link href="/assets/css/terminal.css" rel="stylesheet">
-	<style type="text/css">
-	body {
-		padding-top: 60px;
-		padding-bottom: 40px;
-	}
-	.sidebar-nav {
-		padding: 9px 0;
-	}
-	</style>
+	<link href="/assets/css/styles_compiled.css" rel="stylesheet">
+	//<script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+	<style>
+        /* Custom scrollbar for the terminal window to match the aesthetic */
+        .terminal-scroll::-webkit-scrollbar {
+            height: 8px;
+            width: 8px;
+        }
+        .terminal-scroll::-webkit-scrollbar-track {
+            background: #1a1a1a;
+            border-radius: 4px;
+        }
+        .terminal-scroll::-webkit-scrollbar-thumb {
+            background: #4a4a4a;
+            border-radius: 4px;
+        }
+        .terminal-scroll::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
 }
 
 templ body(model Model) {
-	<body>
+	<body class="min-h-screen flex flex-col bg-white text-neutral-800 font-sans">
 		{ children... }
 	</body>
 }
 
 templ navbar(model Model) {
-	<div class="navbar navbar-fixed-top">
-		<div class="navbar-inner">
-			<div class="container-fluid">
-				<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-				</a>
-				if model.Title != "" {
-					<a class="brand" href="/">{ model.Title }</a>
-				} else {
-					@errorMsg("Empty model")
-				}
-				<div class="nav-collapse">
-					<div class="nav-collapse">
-					<ul class="nav">
-						<li class="active"><a href="#">Home</a></li>
-						<li><a href="#about">About</a></li>
-					</ul>
-					</div><!--/.nav-collapse -->
-				</div>
+	<header class="bg-[#282828] text-white">
+		<!-- Inner container limits width on large screens -->
+        <div class="max-w-[1200px] mx-auto px-6 py-3 flex items-center">
+            <!-- Logo/Title area -->
+			<div class="text-xl text-neutral-400 font-light tracking-wide mr-12">
+			if model.Title != "" {
+				{ model.Title }
+			} else {
+				@errorMsg("Empty model")
+			}
 			</div>
-		</div>
-	</div>
+			<!-- Navigation Links -->
+            <nav class="flex items-center gap-6 text-sm">
+                <a href="#" class="text-white font-semibold hover:text-gray-200 transition-colors">Home</a>
+                <a href="#" class="text-neutral-400 hover:text-white transition-colors">About</a>
+            </nav>
+        </div>
+	</header>
 }
 
 templ mainPanel(model Model) {
-	<div class='container-fluid'>
+	<!-- Main Content Area -->
+    <main class="flex-grow w-full max-w-[1200px] mx-auto px-6 py-8">
+		<!-- Responsive Grid Layout: Stacks on mobile, 3 columns on medium+ screens -->
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
 		{ children... }
-	</div>
+		</div>
+	</main>
 }
 
 templ leftPanel(model Model) {
-	<div class="span9">
-	{ children... }
+	<!-- Left Column (Input & Terminal Output) - Takes up 8 of 12 columns on desktop -->
+    <div class="md:col-span-8 flex flex-col gap-6">
+			{ children... }
 	</div>
 }
 
 templ inputForm(model Model) {
-	<p>URL, text... anything</p>
-	<div class="row-fluid">
-		<form id="form" class="well form-vertical">
-			<textarea id="text" name="content" class="field span12"></textarea>
-			<button class="btn btn-primary btn-large" type="submit">Detect Language</button>
-		</form>
-	</div>
-}
-
-templ logger(model Model) {
-	<div id="logger" class="terminal-window"></div>
-}
-
-templ rightPanel(model Model) {
-	<div class='raw-fluid'>
-		<div class='span3'>
-			<div class="well sidebar-nav">
-				<ul class="nav nav-list">
-					<li class="nav-header">Supported languages</li>
-					if len(model.SupportedLanguages) > 0 {
-						for shortName, fullName := range model.SupportedLanguages {
-							<li id={ "langmarker_" + shortName }><a>{ fullName }</a></li>
-						}
-					} else {
-						@errorMsg("Empty model")
-					}
-					<li><a href='/train'>Train</a></li>
-				</ul>
-			</div>
+	<!-- Input Section -->
+    <div>
+		<!-- Label outside the box -->
+		<label class="block text-sm text-neutral-700 mb-2 pl-1">URL, text... anything</label>
+		<!-- Light gray container box -->
+		 <div class="bg-[#f5f5f5] border border-neutral-200 p-4 rounded-sm shadow-sm">
+			<form id="form">
+				<textarea id="text" name="content" class="w-full h-24 border border-neutral-300 rounded-sm p-2 focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 resize-y mb-4 font-sans text-sm" placeholder=""></textarea>
+				<button type="submit" class="bg-gradient-to-b from-indigo-500 to-[#3b47c4] hover:from-indigo-600 hover:to-[#2a36a8] border border-[#2a36a8] text-white font-medium py-2 px-5 rounded shadow-sm transition-all duration-150">
+					Detect Language
+				</button>
+			</form>
 		</div>
 	</div>
 }
 
-templ horizontalDivider() {
-	<hr>
+templ logger(model Model) {
+	<div id="logger" class="bg-[#0f0f0f] text-[#39ff14] font-mono text-sm p-5 rounded-md shadow-md overflow-x-auto terminal-scroll leading-relaxed border border-neutral-800"></div>
+}
+
+templ rightPanel(model Model) {
+	<!-- Right Column (Sidebar) - Takes up 4 of 12 columns on desktop -->
+	<div class="md:col-span-4">
+		<!-- Light gray container box -->
+		<div class="bg-[#f5f5f5] border border-neutral-200 p-5 rounded-sm shadow-sm">
+			<h3 class="text-xs font-bold text-neutral-500 mb-4 tracking-wider uppercase">Supported Languages</h3>
+			
+			<!-- Vertical list of links -->
+			<ul class="flex flex-col gap-2.5">
+				if len(model.SupportedLanguages) > 0 {
+				for shortName, fullName := range model.SupportedLanguages {
+					//class="p-1 hover:bg-gray-200 rounded-md"
+					<li id={ "langmarker_" + shortName } class="text-[#3b5998] hover:underline text-sm"><a>{ fullName }</a></li>
+				}
+				} else {
+					@errorMsg("Empty model")
+				}
+				<li><a href="#" class="text-[#3b5998] hover:underline text-sm">Train</a></li>
+			</ul>
+		</div>
+	</div>
 }
 
 templ footer(model Model) {
-	<footer>
-	<p>&copy; MRO 2026</p>
-	Version: { model.Version }
-	</footer>
+	<!-- Footer Area -->
+    <footer class="w-full pt-8 pb-6 mt-auto">
+        <!-- Subtle top border extending full width -->
+        <div class="border-t border-neutral-200 w-full mb-6"></div>
+        
+        <div class="max-w-[1200px] mx-auto px-6 flex flex-col gap-1.5 text-[13px] text-neutral-800 font-medium">
+            <p>© MRO 2026</p>
+            <p>Version: { model.Version }</p>
+        </div>
+    </footer>
 }
 
 var jqueryHandle = templ.NewOnceHandle()
@@ -119,7 +142,6 @@ var jqueryHandle = templ.NewOnceHandle()
 templ scripts() {
 	@jqueryHandle.Once() {
 		<script src="https://code.jquery.com/jquery-4.0.0.min.js"></script>
-		<script src="/assets/js/bootstrap.min.js"></script>
 		<script language="javascript" type="text/javascript" src="/assets/js/app.js"></script>
 	}
 }
@@ -140,7 +162,6 @@ templ index() {
 			}
 			@rightPanel(model)
 		}
-		@horizontalDivider()
 
 		@footer(model)
 		@scripts()
