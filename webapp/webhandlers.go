@@ -113,6 +113,7 @@ func (c *Client) writePump() {
 	}
 }
 
+// https://medium.com/wisemonks/implementing-websockets-in-golang-d3e8e219733b
 func wsServe(model Model) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		logger := model.logger
