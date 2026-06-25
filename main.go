@@ -5,10 +5,14 @@ import (
 	"os"
 	"os/signal"
 
+	_ "embed"
 	"go-langdetector/db"
 	"go-langdetector/trainer"
 	"go-langdetector/webapp"
 )
+
+//go:embed .version
+var langDetectorVersion string
 
 func main() {
 	c := make(chan os.Signal, 1)
@@ -25,7 +29,7 @@ func main() {
 	defer store.Close()
 
 	go trainer.Train(store, logger)
-	go webapp.Run(store, logger)
+	go webapp.Run(store, logger, langDetectorVersion)
 
 	s := <-c
 	log.Println("Got signal:", s)

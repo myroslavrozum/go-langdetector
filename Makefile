@@ -1,18 +1,26 @@
-.PHONY: clean clean-data clean-all 
+CURRENT_USER := $(shell whoami)
+HEAD_HASH := $(shell git rev-parse HEAD)
+
+.PHONY: makeversion clean clean-data clean-all 
+
+build: makeversion templ-generate test
+	@echo "Building the executable...."
+	CGO_ENABLED=0
+	GOOS=darwin
+	GOARCH=amd64
+	
+	go tool templ generate
+	go build -o ./bin/go-langdetector .
+
+makeversion:
+	@echo $(HEAD_HASH)
+	@echo $(HEAD_HASH) > .version
 
 templ-generate:
 	go tool templ generate
 
 test:
 	go test ./...
-
-build: templ-generate test
-	@echo "Building the executable...."
-	CGO_ENABLED=0
-	GOOS=darwin
-	GOARCH=amd64
-	go tool templ generate
-	go build -o ./bin/go-langdetector .
 
 build-static: test
 	@echo "Building a static executable...."
@@ -26,9 +34,11 @@ compress: build-static
 	@echo "Compressing the executable...."
 	upx --brute --force-macos bin/go-langdetector-static
 
-run: build
-	@echo "Running the executable...."
-	./bin/go-langdetector
+run:
+	@echo "Running the app...."
+	@echo "DEV" > .version
+	go tool templ generate
+	go run .
 
 clean-bin:
 	rm -f ./bin/*
