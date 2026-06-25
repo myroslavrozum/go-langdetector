@@ -17,22 +17,27 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-func serveIndexPage(c *gin.Context) {
-	supportedLanguages := make(map[string]string)
-	for shortName, v := range constants.UrlDictionary {
-		fullName := v[0]
-		supportedLanguages[shortName] = fullName
+func serveIndexPage(model Model) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// var model Model
+
+		// model.Title = "Language Detectur"
+		// model.SupportedLanguages = make(map[string]string)
+
+		// for shortName, v := range constants.UrlDictionary {
+		// 	fullName := v[0]
+		// 	model.SupportedLanguages[shortName] = fullName
+		// }
+
+		cntxt := c.Request.Context()
+		cntxt = context.WithValue(cntxt, "Model", model)
+
+		component := index()
+		component.Render(cntxt, c.Writer)
 	}
-
-	cntxt := c.Request.Context()
-	cntxt = context.WithValue(cntxt, "Title", "language Detectur")
-	cntxt = context.WithValue(cntxt, "SupportedLanguages", supportedLanguages)
-
-	component := index()
-	component.Render(cntxt, c.Writer)
 }
 
-func Detect(trigrammes map[string]map[string]float64) gin.HandlerFunc {
+func Detect(m Model) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		contentToCheck := c.PostForm("content")
 
@@ -49,7 +54,7 @@ func Detect(trigrammes map[string]map[string]float64) gin.HandlerFunc {
 		} else {
 			data = contentToCheck
 		}
-
+		learnedTrigrammes := m.Trigrammes
 		trigrammes2investigate := trainer.ExtractTrigrammesFromText(data)
 		log.Printf("Got %d trigrammes for: \"%s\"", len(trigrammes2investigate), contentToCheck)
 
@@ -58,7 +63,7 @@ func Detect(trigrammes map[string]map[string]float64) gin.HandlerFunc {
 		var minLangFull string
 		var minLang string
 		for lang, v := range constants.UrlDictionary {
-			d := algos.CalculateColsineDistances(trigrammes[lang], trigrammes2investigate)
+			d := algos.CalculateColsineDistances(learnedTrigrammes[lang], trigrammes2investigate)
 			distances[lang] = d
 			log.Printf("Calculated distance to %s is %f", v[0], d)
 			if d < minD {
@@ -119,8 +124,9 @@ func (c *Client) writePump() {
 	}
 }
 
-func wsServe(logger chan string) gin.HandlerFunc {
+func wsServe(model Model) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		logger := model.logger
 		conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 		if err != nil {
 			log.Println("Upgrade error:", err)
