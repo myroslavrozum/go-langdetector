@@ -10,3 +10,4 @@ Architecture:
 - [ ] DesignHub: Holds room state mapping (map[string]map[*Client]bool) and manages thread-safe registration.
 - [X] Client: Acts as the middleman holding a specific connection and a buffered outbound channel.
 - [X] Write Pump: A dedicated per-client goroutine that handles sequential network writes to prevent write contention.
+- [ ] Embed web assets into the bynary (emed.FS)
