@@ -2,7 +2,6 @@ package webapp
 
 import (
 	"context"
-	"go-langdetector/algos"
 	"go-langdetector/constants"
 	"go-langdetector/crawler"
 	"go-langdetector/trainer"
@@ -63,7 +62,7 @@ func Detect(m Model) gin.HandlerFunc {
 		var minLangFull string
 		var minLang string
 		for lang, v := range constants.UrlDictionary {
-			d := algos.CalculateColsineDistances(learnedTrigrammes[lang], trigrammes2investigate)
+			d := calculateColsineDistances(learnedTrigrammes[lang], trigrammes2investigate)
 			distances[lang] = d
 			log.Printf("Calculated distance to %s is %f", v[0], d)
 			if d < minD {
