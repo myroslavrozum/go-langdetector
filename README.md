@@ -43,37 +43,20 @@ For Tailwind CSS, follow the [official guide](https://tailwindcss.com/docs/insta
 brew install tailwindcss
 ```
 
-### 3. Run the Application
-
-To run the web application, you need to have `templ` and `tailwindcss` running in watch mode to automatically recompile your templates and styles as you make changes.
-
-Open three separate terminal windows in the project root directory and run the following commands:
-
-```bash
-# Terminal 1: Run the templ watcher
-templ generate --watch
-
-# Terminal 2: Run the Tailwind CSS watcher
-tailwindcss -i ./webapp/assets/css/styles_template.css -o ./webapp/assets/css/styles_compiled.css --watch
-
-# Terminal 3: Run the Go web server
-go run .
-```
-
 ## Configuring gears necessary for UI
 
 go get -u github.com/gorilla/websocket
 
 ### GoTTH
 
-#### First 'T' for Templ
+#### 1. First 'T' for Templ
 
 ```bash
 go get -tool github.com/a-h/templ/cmd/templ@latest
 go tool templ generate
 ```
 
-#### Second 'T' for Tailwind
+#### 2. Second 'T' for Tailwind
 
 Install "Tailwind CSS IntelliSense" plugin for VSCode
 For standalone Tailwind, without Node.JS follwo steps on
@@ -99,3 +82,20 @@ tailwindcss -i webapp/assets/css/styles_template.css -o webapp/assets/css/styles
 ```
 
 respectively. THen you can use VSCode's `Run->...`
+
+### Run the Application
+
+To run the web application, you need to have `templ` and `tailwindcss` running in watch mode to automatically recompile your templates and styles as you make changes.
+
+Open three separate terminal windows in the project root directory and run the following commands:
+
+```bash
+# Terminal 1: Run the templ watcher
+templ generate --watch
+
+# Terminal 2: Run the Tailwind CSS watcher
+tailwindcss -i ./webapp/assets/css/styles_template.css -o ./webapp/assets/css/styles_compiled.css --watch
+
+# Terminal 3: Run the Go web server
+go run .
+```
