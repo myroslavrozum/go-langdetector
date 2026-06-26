@@ -21,7 +21,7 @@ generate:
 test:
 	go test ./...
 
-build-static: test
+build-static: makeversion generate test
 	@echo "Building a static executable...."
 	CGO_ENABLED=0
 	GOOS=darwin

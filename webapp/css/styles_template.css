@@ -49,3 +49,25 @@
     background: #282828;
     color: #ffffff;
 }
+
+.detected {
+    background: #282828;
+    color: #ffffff;
+}
+
+/* Custom scrollbar for the terminal window to match the aesthetic */
+.terminal-scroll::-webkit-scrollbar {
+    height: 8px;
+    width: 8px;
+}
+.terminal-scroll::-webkit-scrollbar-track {
+    background: #1a1a1a;
+    border-radius: 4px;
+}
+.terminal-scroll::-webkit-scrollbar-thumb {
+    background: #4a4a4a;
+    border-radius: 4px;
+}
+.terminal-scroll::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}

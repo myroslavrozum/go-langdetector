@@ -3,4 +3,4 @@ data/langdetector-badger-db/*
 bin/
 .vscode/
 webapp/*_templ.go
-webapp/assets/css/*_compiled.css
+webapp/css/*_compiled.css

@@ -1,6 +1,7 @@
 package webapp
 
 import (
+	"embed"
 	"go-langdetector/constants"
 	"go-langdetector/db"
 	"log"
@@ -16,19 +17,20 @@ func readModelFromContext(value any) Model {
 	return Model{}
 }
 
+//go:embed css/*
+var assetsCss embed.FS
+
 //go:generate go tool templ generate
-//go:generate tailwindcss -i assets/css/styles_template.css -o assets/css/styles_compiled.css
+//go:generate tailwindcss -i css/styles_template.css -o css/styles_compiled.css
 func Run(store *db.Store, logger chan string, version string) {
 	var model Model
 
 	model.Title = "Language Detectur"
 	model.SupportedLanguages = make(map[string]string)
+	model.Version = string(version)
+	model.logger = logger
 
-	for shortName, v := range constants.UrlDictionary {
-		fullName := v[0]
-		model.SupportedLanguages[shortName] = fullName
-	}
-
+	model.renderSupportedLanguages()
 	model.Trigrammes = make(map[string]map[string]float64)
 	for lang := range constants.UrlDictionary {
 		var err error
@@ -38,15 +40,10 @@ func Run(store *db.Store, logger chan string, version string) {
 		}
 	}
 
-	model.Version = string(version)
-	model.logger = logger
-
 	router := gin.Default()
-	router.Static("/assets", "./webapp/assets")
-	router.Static("/js", "./webapp/js")
+	router.StaticFS("/assets", http.FS(assetsCss))
 
 	router.GET("/", serveIndexPage(model))
-	router.GET("/notailwind", serveIndexPage(model))
 	router.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "pong",

@@ -15,4 +15,4 @@ Architecture:
 ~~- [X] Client: Acts as the middleman holding a specific connection and a buffered outbound channel.~~
 ~~- [X] Write Pump: A dedicated per-client goroutine that handles sequential network writes to prevent write contention.~~
 No need for the above, using websocket was overhead - replaced it with EventStream
-- [ ] Embed web assets into the bynary (emed.FS)
+- [X] Embed web assets into the bynary (emed.FS)

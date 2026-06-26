@@ -10,7 +10,6 @@ import (
 	"math"
 	"net/http"
 	"strings"
-	"sync"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
@@ -61,14 +60,10 @@ func Detect(m Model) gin.HandlerFunc {
 				minLang = lang
 			}
 		}
+		m.renderSupportedLanguages(minLang)
 		log.Printf("Minimum distance (%f) is to %s", minD, minLangFull)
 
-		c.JSON(http.StatusOK, gin.H{
-			"status":      "posted",
-			"minD":        minD,
-			"minLangFull": minLangFull,
-			"minLang":     minLang,
-		})
+		c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(m.SupportedLanguagesRendered))
 	}
 }
 
@@ -79,38 +74,6 @@ var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
 		return true
 	},
-}
-
-type Client struct {
-	conn     *websocket.Conn
-	send     chan []byte
-	mu       sync.Mutex // Ensures closing happens only once
-	isClosed bool
-}
-
-func (c *Client) writePump() {
-	defer func() {
-		c.mu.Lock()
-		if !c.isClosed {
-			c.conn.Close()
-			c.isClosed = true
-		}
-		c.mu.Unlock()
-	}()
-
-	for {
-		select {
-		case message, ok := <-c.send:
-			if !ok {
-				// The channel was closed by the hub.
-				c.conn.WriteMessage(websocket.CloseMessage, []byte{})
-				return
-			}
-
-			// Write the message to the websocket
-			c.conn.WriteMessage(websocket.TextMessage, message)
-		}
-	}
 }
 
 func logStream(model Model) gin.HandlerFunc {
@@ -135,6 +98,39 @@ func logStream(model Model) gin.HandlerFunc {
 		})
 	}
 }
+
+// NOTE: Leaving it here just
+// type Client struct {
+// 	conn     *websocket.Conn
+// 	send     chan []byte
+// 	mu       sync.Mutex // Ensures closing happens only once
+// 	isClosed bool
+// }
+
+// func (c *Client) writePump() {
+// 	defer func() {
+// 		c.mu.Lock()
+// 		if !c.isClosed {
+// 			c.conn.Close()
+// 			c.isClosed = true
+// 		}
+// 		c.mu.Unlock()
+// 	}()
+
+// 	for {
+// 		select {
+// 		case message, ok := <-c.send:
+// 			if !ok {
+// 				// The channel was closed by the hub.
+// 				c.conn.WriteMessage(websocket.CloseMessage, []byte{})
+// 				return
+// 			}
+
+// 			// Write the message to the websocket
+// 			c.conn.WriteMessage(websocket.TextMessage, message)
+// 		}
+// 	}
+// }
 
 // https://medium.com/wisemonks/implementing-websockets-in-golang-d3e8e219733b
 // Leaving the code here, but using websocket for this was overhead.
