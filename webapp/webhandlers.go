@@ -5,12 +5,12 @@ import (
 	"go-langdetector/constants"
 	"go-langdetector/crawler"
 	"go-langdetector/trainer"
+	"io"
 	"log"
 	"math"
 	"net/http"
 	"strings"
 	"sync"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
@@ -113,38 +113,62 @@ func (c *Client) writePump() {
 	}
 }
 
-// https://medium.com/wisemonks/implementing-websockets-in-golang-d3e8e219733b
-func wsServe(model Model) gin.HandlerFunc {
+func logStream(model Model) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		logger := model.logger
-		conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
-		if err != nil {
-			log.Println("Upgrade error:", err)
-			return
-		}
+		// Set headers necessary for SSE to function properly
+		c.Header("Content-Type", "text/event-stream")
+		c.Header("Cache-Control", "no-cache")
+		c.Header("Connection", "keep-alive")
+		c.Header("Transfer-Encoding", "chunked")
+		//c.Header("Access-Control-Allow-Origin", "*")
 
-		client := &Client{
-			conn: conn,
-			send: make(chan []byte, 256), // Buffered channel for async queuing
-		}
-
-		// Start the async writer in a separate goroutine
-		go client.writePump()
-
-		// --- Example of generating and sending async messages ---
-		// In a real application, messages would come from a central broadcast hub.
-		go func() {
-			for {
-				time.Sleep(2 * time.Second)
-				l := <-logger
-				select {
-				case client.send <- []byte([]byte(l)):
-				default:
-					// If the send channel is full or closed, break out of the loop
-					log.Println("Failed to send message, client disconnected?")
-					return
-				}
+		// Keep the stream alive using c.Stream
+		c.Stream(func(w io.Writer) bool {
+			select {
+			case <-c.Request.Context().Done():
+				log.Println("Client disconnected from stream...")
+				return false
+			case l := <-model.logger:
+				c.SSEvent("message", strings.TrimSpace(l))
+				return true
 			}
-		}()
+		})
 	}
 }
+
+// https://medium.com/wisemonks/implementing-websockets-in-golang-d3e8e219733b
+// Leaving the code here, but using websocket for this was overhead.
+// func wsServe(model Model) gin.HandlerFunc {
+// 	return func(c *gin.Context) {
+// 		logger := model.logger
+// 		conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
+// 		if err != nil {
+// 			log.Println("Upgrade error:", err)
+// 			return
+// 		}
+
+// 		client := &Client{
+// 			conn: conn,
+// 			send: make(chan []byte, 256), // Buffered channel for async queuing
+// 		}
+
+// 		// Start the async writer in a separate goroutine
+// 		go client.writePump()
+
+// 		// --- Example of generating and sending async messages ---
+// 		// In a real application, messages would come from a central broadcast hub.
+// 		go func() {
+// 			for {
+// 				time.Sleep(2 * time.Second)
+// 				l := <-logger
+// 				select {
+// 				case client.send <- []byte([]byte(l)):
+// 				default:
+// 					// If the send channel is full or closed, break out of the loop
+// 					log.Println("Failed to send message, client disconnected?")
+// 					return
+// 				}
+// 			}
+// 		}()
+// 	}
+// }

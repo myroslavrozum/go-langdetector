@@ -53,6 +53,7 @@ func Run(store *db.Store, logger chan string, version string) {
 		})
 	})
 	router.POST(`/detect`, Detect(model))
-	router.GET("/getTrainerLogs", wsServe(model))
+	router.GET("/logStream", logStream(model))
+
 	router.Run() // listen and serve on 0.0.0.0:8080
 }

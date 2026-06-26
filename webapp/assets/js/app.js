@@ -19,29 +19,14 @@ $(document).ready(function() {
     });
 
     //let socket = new WebSocket("wss://javascript.info/article/websocket/demo/hello");
-    let socket = new WebSocket("ws://localhost:8080/getTrainerLogs");
-    socket.onopen = function(e) {
-        console.log("[open] Connection established");
-        console.log("Sending to server");
-        socket.send("My name is John");
-    };
-
-    socket.onmessage = function(event) {
-        console.log(`[message] Data received from server: ${event.data}`);
+    let logs = new EventSource("/logStream");
+   
+    logs.onmessage = function(event) {
+        console.log("[message] Data received from server: ${event.data}");
         $('#logger').append(`${event.data}<br>`);
     };
 
-    socket.onclose = function(event) {
-        if (event.wasClean) {
-            console.log(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
-        } else {
-        // e.g. server process killed or network down
-        // event.code is usually 1006 in this case
-            console.log('[close] Connection died');
-        }
-    };
-
-    socket.onerror = function(error) {
-        console.log(`[error]`);
+    logs.onerror = function(error) {
+        console.error("[error]", error);
     };
 });
