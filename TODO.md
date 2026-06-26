@@ -11,8 +11,8 @@ Before diving into WebUI, make logger websocket to broadcast messages.
 According to our Gemini-friend the architecture should look like this:
 
 Architecture:
-~~- [ ] DesignHub: Holds room state mapping (map[string]map[*Client]bool) and manages thread-safe registration.~~
-~~- [X] Client: Acts as the middleman holding a specific connection and a buffered outbound channel.~~
-~~- [X] Write Pump: A dedicated per-client goroutine that handles sequential network writes to prevent write contention.~~
+- [ ] ~~DesignHub: Holds room state mapping (map[string]map[*Client]bool) and manages thread-safe registration.~~
+- [X] ~~Client: Acts as the middleman holding a specific connection and a buffered outbound channel.~~
+- [X] ~~Write Pump: A dedicated per-client goroutine that handles sequential network writes to prevent write contention.~~
 No need for the above, using websocket was overhead - replaced it with EventStream
 - [X] Embed web assets into the bynary (emed.FS)
