@@ -79,7 +79,10 @@ func Train(store *db.Store, logger chan string) {
 				m := fmt.Sprintf("%s: Total values %d,  min_freq: %f, avg frequency: %f, dispersion %f, LF items %d\n",
 					lang, numberOfTrigrammes, minFreq, avgFreq, dispersion, len(lowFreqValues))
 				log.Println(m)
-				logger <- m
+				select {
+				case logger <- m:
+				default:
+				}
 
 				log.Printf("2. Calculating updated values:")
 				for trigramme, newFreq := range trigrammes {
